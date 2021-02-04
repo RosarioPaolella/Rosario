@@ -4,3 +4,4 @@ Sample build using :
 
 ---gpiozero for interface to GPIO devices
 ---guizero  for GUI
+---Pygame   for game
