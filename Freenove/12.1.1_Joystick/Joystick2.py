@@ -19,10 +19,11 @@ velocity=1
 speed = [0, 0]
 black = 0, 0, 0
 
-screen = pygame.display.set_mode(size,pygame.RESIZABLE  )
+screen = pygame.display.set_mode(size,pygame.RESIZABLE)
 pygame.display.set_caption("GPIO Joystick Sample")
 
-ball = pygame.image.load(images_dir + "intro_ball.gif")
+bg = pygame.image.load(images_dir + "space_bg.jpg")
+ball = pygame.image.load(images_dir + "space_ship.png")
 ballrect = ball.get_rect()
 
 while 1:
@@ -58,6 +59,7 @@ while 1:
 
     #draw in the new position
     screen.fill(black)
+    screen.blit(bg,(0,0))
     screen.blit(ball, ballrect)
     pygame.display.flip()
     
