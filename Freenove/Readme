@@ -1,7 +1,0 @@
-Additional Samples using  Freenove Ultimate Starter Kit for Raspberry PI
-
-Sample build using :
-
----gpiozero for interface to GPIO devices
----guizero  for GUI
----Pygame   for game
