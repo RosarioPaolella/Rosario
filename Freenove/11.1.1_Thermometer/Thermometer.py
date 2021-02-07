@@ -104,9 +104,6 @@ def setup():
 def ProcessData():
     global temperature
 
-    temperature=10
-    
-    """
     value = adc.analogRead(0)        # read ADC value A0 pin
     voltage = value / 255.0 * 3.3        # calculate voltage
     Rt = 10 * voltage / (3.3 - voltage)    # calculate resistance value of thermistor
@@ -114,7 +111,7 @@ def ProcessData():
     temperature = tempK -273.15        # calculate temperature (Celsius)
     txtTemperature.value=truncate(temperature,3)
     temperature=truncate(temperature,3)
-    """
+
     DrawTermometer(currentWidth,currentHeight)
 ############ END FUNCTIONS###############################################
 
@@ -131,7 +128,7 @@ temperature=0
 
 adc = ADCDevice() # Define an ADCDevice class object
 
-#setup()
+setup()
 
 #Gui Design#################################################
 title_box = Box(app, width="fill", align="top")
