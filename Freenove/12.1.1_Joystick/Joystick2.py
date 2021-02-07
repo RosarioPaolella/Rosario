@@ -24,6 +24,11 @@ pygame.display.set_caption("GPIO Joystick Sample")
 
 bg = pygame.image.load(images_dir + "space_bg.jpg")
 ball = pygame.image.load(images_dir + "space_ship.png")
+ball=pygame.transform.scale(ball,(76,76) )
+
+#rotate sample
+#ball=pygame.transform.rotate(ball, 90)
+
 ballrect = ball.get_rect()
 
 while 1:
@@ -51,9 +56,9 @@ while 1:
 
     ballrect = ballrect.move(speed)
     if ballrect.left < 0 or ballrect.right > width:
-        speed[0] = -speed[0]
+        speed[0] = 0
     if ballrect.top < 0 or ballrect.bottom > height:
-        speed[1] = -speed[1]
+        speed[1] =0
 
     time.sleep(0.01)
 
