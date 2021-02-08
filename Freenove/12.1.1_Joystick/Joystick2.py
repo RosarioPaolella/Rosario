@@ -12,7 +12,6 @@ import math
 import RPi.GPIO as GPIO
 from ADCDevice import *
 
-
 ########################start classes############################# 
 class SpaceShip(pygame.sprite.Sprite):
     def __init__(self,size):
@@ -42,7 +41,7 @@ class SpaceShip(pygame.sprite.Sprite):
         
     def rotate(self):
         oldCenter=self.rect.center
-        self.angle=(self.angle+self.angleIncrement) %360
+        self.angle=(self.angle+self.angleIncrement)%360
         self.angleIncrement=0
         
         self.image =  pygame.transform.rotate(self.image_orig, self.angle)
@@ -86,9 +85,18 @@ def GetVelocity(value):
 
 def GetRotationAngle(V_x,V_y):
     new_angle=0
-    if (V_x!=0):
+    
+    if (V_x==0):
+        if (V_y>0) : new_angle=180
+        else : new_angle=0
+    elif (V_y==0):
+        if (V_x>0) : new_angle=270 
+        else : new_angle=90
+    elif (V_x!=0 and V_y!=0):
         new_angle=math.atan(V_y/V_x)
         new_angle=(new_angle*180)/3.14
+        if (V_y>0) : new_angle=(new_angle-180)%360
+    
     return new_angle
 
 def ProcessEvents(objToMove,Pin_Axis_Z):
