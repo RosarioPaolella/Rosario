@@ -40,5 +40,5 @@ print ("Decimal is "+ str(numberToConvert) + " Binary is :" + str(binary))
 for i in range (len(binary)-1,-1,-1):
     if binary[i]==1  :
         leds.on(i)
-    else :
+    else : 
         leds.off (i)
