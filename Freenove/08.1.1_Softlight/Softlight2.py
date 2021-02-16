@@ -32,7 +32,7 @@ def loop():
         voltage = value / 255.0 * 3.3  # calculate the voltage value
         print ('ADC Value : %d, Voltage : %.2f'%(value,voltage))
         time.sleep(0.03)
-
+ 
 def destroy():
     GPIO.cleanup()
     adc.close()
