@@ -10,7 +10,7 @@ from time import sleep
 from signal import pause
 from random import seed
 from random import randint
-
+ 
 print('Program is starting ... ')
 
 value=0
