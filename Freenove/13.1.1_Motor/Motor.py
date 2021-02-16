@@ -6,11 +6,12 @@
 # modification: 2021/02/10
 ########################################################################
 #import RPi.GPIO as GPIO
-#from ADCDevice import *
-#from gpiozero import Motor
+from ADCDevice import *
+from gpiozero import Motor
 from PIL import Image, ImageTk
 from guizero import *
 from ACDCMapper import *
+import cv2
 import time
 
 #Class Defintions #####################################################
@@ -66,13 +67,30 @@ class MotorHelix:
         self.mappedValues.SetMapping(230,256,25)        
 
 
-    #set image size as half of window size and center on screen
+#set image size as half of window size and center on screen
+
     def SetImageSize(self):
+
+        width, height =  self.__helixPicture.shape[:2]
         self.__img_Width=int(self.canvasWidth/2)
-        ratio=self.__img_Width/self.__helixPicture.width
-        self.__img_Height=int(self.__helixPicture.width*ratio)    
+        ratio=self.__img_Width/width
+        self.__img_Height=int(width*ratio)   
         self.__img_Left=self.canvasWidth/2-self.__img_Width/2
-        self.__img_Top= self.canvasHeight/2-self.__img_Height/2  
+        self.__img_Top= self.canvasHeight/2-self.__img_Height/2 
+
+ 
+
+    def rotate(self,image, angle, center = None, scale = 1.0):
+
+        (h, w) = image.shape[:2]
+
+        if center is None:
+            center = (w / 2, h / 2)
+
+        # Perform the rotation
+        M = cv2.getRotationMatrix2D(center, angle, scale)
+        rotated = cv2.warpAffine(image, M, (w, h),borderValue=(255,255,255))
+        return rotated
 
     def DrawHelix(self):
         self.canvas.clear()
@@ -84,11 +102,15 @@ class MotorHelix:
         if (self.speed==0) : self.direction=self.__directions[0]
         if (self.speed>0) : self.direction=self.__directions[1]
         if (self.speed<0) : self.direction=self.__directions[2]
-
+        
         ImagetoDraw=self.__helixPicture
-        ImagetoDraw=ImagetoDraw.resize((self.__img_Width ,self.__img_Height), Image.ANTIALIAS)
-        ImagetoDraw=ImagetoDraw.rotate(self.__angle)
-        tkImage=ImageTk.PhotoImage(ImagetoDraw)
+        ImagetoDraw = cv2.cvtColor(ImagetoDraw, cv2.COLOR_BGR2RGB)
+        ImagetoDraw= cv2.resize(ImagetoDraw, (self.__img_Width ,self.__img_Height), interpolation = cv2.INTER_AREA)
+        ImagetoDraw=self.rotate(ImagetoDraw,(self.__angle))
+
+        # convert the images to PIL format...
+        ImagetoDraw = Image.fromarray(ImagetoDraw)
+        tkImage = ImageTk.PhotoImage(ImagetoDraw)
         self.canvas.image(self.__img_Left, self.__img_Top,tkImage)
         
         self.__angle=(self.__angle+self.speed)%360
@@ -97,19 +119,53 @@ class MotorHelix:
 def on_resize(event):
     motor.canvasWidth=event.width
     motor.canvasHeight=event.height
+    motor.DrawHelix()
+
+# mapNUM function: map the value from a range of mapping to another range.
+def mapNUM(value,fromLow,fromHigh,toLow,toHigh):
+    return (toHigh-toLow)*(value-fromLow) / (fromHigh-fromLow) + toLow
 
 def ProcessData():
+    value = adc.analogRead(0) # read ADC value of channel 0
+
+    motor.adcValue=value
+
+    #move motor device 
+    value = value -128
+    speed=mapNUM(abs(value),0,128,0,100)
+    if (speed > 0):
+        motor_device.forward(speed/100)
+    if (speed < 0):
+        motor_device.backward(speed/100)
+    if (speed == 0):
+        motor_device.stop()
+    #draw motor on screen 
     motor.DrawHelix()
+
+
 
     txtValue.value=motor.adcValue
     txtDirection.value=motor.direction
     txtSpeed.value=motor.speed
 
+
+    print ('ADC Value : %d'%(value))
+
 def Clean():
     print ("Clean GPIO")
-    #adc.close()
-    #GPIO.cleanup()
-
+    adc.close()
+    
+def setupDevices():
+    global adc
+    if(adc.detectI2C(0x48)): # Detect the pcf8591.
+        adc = PCF8591()
+    elif(adc.detectI2C(0x4b)): # Detect the ads7830
+        adc = ADS7830()
+    else:
+        print("No correct I2C address found, \n"
+        "Please use command 'i2cdetect -y 1' to check the I2C address! \n"
+        "Program Exit. \n");
+        exit(-1)
 #############APPLICATION ################################################
 app = App(title="Motor with L293D")
 app.bg="white"
@@ -117,6 +173,17 @@ app.bg="white"
 #current width and height of the color box used to draw circle in the middle
 currentWidth=0
 currentHeight=0
+
+###Setup Devices
+adc = ADCDevice() 
+
+motoRPin1 = 27 #connected with pin IN1 of L293D
+motoRPin2 = 17 #connected with pin IN1 of L293D
+enablePin = 22 #connected with pin ENABLE1 of L293D
+
+motor_device = Motor(motoRPin1, motoRPin2,enablePin)
+
+setupDevices()
 
 #Gui Design#################################################
 title_box = Box(app, width="fill", align="top")
@@ -127,11 +194,11 @@ helix_box = Box(app, width="fill", height="fill" , align="top",border=True)
 helix_box.tk.bind('<Configure>', on_resize) 
 
 #Load Helix Picure
-images_dir = dir_path = os.path.dirname(os.path.realpath(__file__)) + "\\images\\"
+images_dir = dir_path = os.path.dirname(os.path.realpath(__file__)) + "/images/"
 
 T_Canvas = Drawing(helix_box,width="fill",height="fill")
 
-picture = Image.open(images_dir + "helix.png")
+picture = cv2.imread(images_dir + "helix.png")
 
 motor=MotorHelix(T_Canvas,picture)
 
@@ -144,7 +211,7 @@ txtDirection= Text(info_box, text="N/A", align="left",width="fill",size=12,font=
 Text(info_box, text="Speed :",align="left",width="fill",size=10,font="Segoe UI")
 txtSpeed= Text(info_box, text="N/A", align="left",width="fill",size=12,font="Segoe UI Black")
 
-app.repeat(100,ProcessData)
+app.repeat(180,ProcessData)
 
 app.display()
 app.when_closed= Clean()
