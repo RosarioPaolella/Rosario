@@ -41,7 +41,7 @@ while True:
     led.color = Color(r,g,b) #set color
 
     print ('color is ',r,g,b)
-
+ 
     sleep(0.5)
 
 pause()
