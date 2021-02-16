@@ -145,7 +145,7 @@ buttons_box = Box(app, width="fill", align="bottom")
 Text(buttons_box, text="Temperature (C°)",align="left",width="fill",size=32)
 txtTemperature= Text(buttons_box, text="N/A", align="right",width="fill",size=32)
 
-app.repeat(50,ProcessData)
+app.repeat(50, ProcessData)
 
 app.display()
 app.when_closed= Clean()
