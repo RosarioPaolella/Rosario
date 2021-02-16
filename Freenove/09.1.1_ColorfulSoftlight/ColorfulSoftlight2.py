@@ -141,6 +141,6 @@ buttonOK = PushButton(app, command=StartProcess, text="Start",align="left",width
 buttonCancel= PushButton(app, command=EndProcess,text="Stop", align="right",width="fill")
 
 app.repeat(50,ProcessData)
-
+ 
 app.display()
 app.when_closed= Clean()
