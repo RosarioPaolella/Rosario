@@ -43,7 +43,7 @@ def onButtonPressed():
 def onButtonReleased():
     TBuzzer.stop()
     print("Button is released, Stop Play<<<")
-
+ 
 button.when_pressed = onButtonPressed
 button.when_released = onButtonReleased
 
