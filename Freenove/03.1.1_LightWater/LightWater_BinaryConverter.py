@@ -11,12 +11,13 @@ from signal import pause
 
 print('Program is starting ... ')
 
-numberToConvert=512
+numberToConvert=1024                                                                                                                             
 
-ledPins = ["J8:11","J8:12","J8:13","J8:15","J8:16","J8:18","J8:22","J8:3","J8:5","J8:24"]
+#ledPins = ["J8:11","J8:12","J8:13","J8:15","J8:16","J8:18","J8:22","J8:3","J8:5","J8:24"]
 
-leds = LEDBoard(*ledPins, active_high=False)
 
+leds = LEDBoard(17,18,27,23,22,24,25,2,3,16,active_high=False)
+  
 #define array of 10 bit : 0000000000
 binary = []
 for i in range(10):
@@ -42,3 +43,10 @@ for i in range (len(binary)-1,-1,-1):
         leds.on(i)
     else : 
         leds.off (i)
+
+while True:
+    #leds.on()
+
+    sleep(1)
+
+   
